@@ -1,25 +1,72 @@
 pipeline {
-    agent any
+    agent none
 
-    tools {
-        dotnet 'dotnet-8'  // Ensure this matches the .NET SDK name in Jenkins
+    environment {
+        DOTNET_ROOT = '/usr/share/dotnet'
     }
 
     stages {
+
+        stage('Checkout') {
+            agent { label 'build-node' }
+            steps {
+                git branch: 'main', url: 'https://github.com/sahil303/jenkins-devops-demo.git'
+            }
+        }
+
         stage('Restore') {
+            agent { label 'build-node' }
             steps {
                 sh 'dotnet restore ContactManagerSolution.sln'
             }
         }
+
         stage('Build') {
+            agent { label 'build-node' }
             steps {
                 sh 'dotnet build ContactManagerSolution.sln --no-restore'
             }
         }
+
         stage('Test') {
+            agent { label 'test-node' }
             steps {
                 sh 'dotnet test ContactManagerAPI.Tests/ContactManagerAPI.Tests.csproj --no-build --verbosity normal'
             }
+        }
+
+        stage('Deploy to Staging') {
+            agent { label 'staging-node' }
+            steps {
+                echo 'Deploying to Staging...'
+                sh './deploy-staging.sh' // You should create this script
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                input message: 'Approve deployment to production?', ok: 'Deploy'
+            }
+        }
+
+        stage('Deploy to Production') {
+            agent { label 'production-node' }
+            steps {
+                echo 'Deploying to Production...'
+                sh './deploy-prod.sh' // You should create this script
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+        always {
+            echo "Cleanup or notifications can be added here"
         }
     }
 }
