@@ -31,7 +31,7 @@ pipeline {
         stage('Test') {
             agent { label 'test-node' }
             steps {
-                bat 'dotnet test --no-build --verbosity normal ContactManagerAPI\\ContactManagerAPI.sln'
+                bat 'dotnet test --verbosity normal ContactManagerAPI\\ContactManagerAPI.sln'
             }
         }
 
