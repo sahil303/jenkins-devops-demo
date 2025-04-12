@@ -1,0 +1,25 @@
+pipeline {
+    agent any
+
+    tools {
+        dotnet 'dotnet-8'  // Ensure this matches the .NET SDK name in Jenkins
+    }
+
+    stages {
+        stage('Restore') {
+            steps {
+                sh 'dotnet restore ContactManagerSolution.sln'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'dotnet build ContactManagerSolution.sln --no-restore'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'dotnet test ContactManagerAPI.Tests/ContactManagerAPI.Tests.csproj --no-build --verbosity normal'
+            }
+        }
+    }
+}
