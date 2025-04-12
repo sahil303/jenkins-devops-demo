@@ -1,76 +1,64 @@
 pipeline {
     agent any
+    environment {
+        STAGING_SERVER = 'staging-server'
+        PRODUCTION_SERVER = 'production-server'
+    }
+
     stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/sahil303/jenkins-devops-demo.git', branch: 'main'
+            }
+        }
+
+        stage('Restore') {
+            steps {
+                echo 'Restoring .NET dependencies...'
+                bat 'dotnet restore'
+            }
+        }
+
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                script {
-                    try {
-                        bat 'dotnet build'
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
+                bat 'dotnet build --configuration Release'
             }
         }
+
         stage('Test') {
             steps {
-                echo 'Running tests...'
-                script {
-                    try {
-                        bat 'dotnet test'  
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
+                echo 'Running unit tests...'
+                bat 'dotnet test --no-build --verbosity normal'
             }
         }
+
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to Staging environment...'
-                script {
-                    try {
-                        bat 'dotnet publish --configuration Release --output ./staging'
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
+                echo "Deploying to staging environment: ${env.STAGING_SERVER}"
+                // Simulate deployment or run a custom script
+                bat 'echo Simulating Staging Deployment'
             }
         }
+
+        stage('Manual Approval') {
+            steps {
+                input message: 'Approve Deployment to Production?'
+            }
+        }
+
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying to Production environment...'
-                script {
-                    try {
-                        bat 'dotnet publish --configuration Release --output ./production'
-                    } catch (Exception e) {
-                        currentBuild.result = 'FAILURE'
-                        throw e
-                    }
-                }
+                echo "Deploying to production environment: ${env.PRODUCTION_SERVER}"
+                // Simulate production deployment
+                bat 'echo Simulating Production Deployment'
             }
         }
     }
+
     post {
-        success {
-            echo 'Pipeline succeeded!'
-            // You can add any additional actions here for successful execution
-        }
         failure {
-            echo 'Pipeline failed! Notifying team...'
-            // Example: Send email or Slack notification
-            // emailext to: 'team@example.com', subject: 'Build Failed', body: 'The Jenkins pipeline failed.'
-        }
-        unstable {
-            echo 'Pipeline is unstable! Investigate the issues.'
-            // Add actions for unstable builds (e.g., partial test failures)
-        }
-        always {
-            echo 'Pipeline execution completed.'
-            // Actions that should run regardless of the pipeline outcome, such as cleanup
+            echo 'Pipeline failed. Triggering notification/rollback if configured.'
         }
     }
 }
