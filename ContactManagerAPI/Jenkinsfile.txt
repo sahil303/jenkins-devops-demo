@@ -1,62 +1,76 @@
 pipeline {
     agent any
-
-    environment {
-        DOTNET_ROOT = '/usr/share/dotnet'
-    }
-
     stages {
-
-        stage('Checkout') {
-            steps {
-                echo 'Checking out source code...'
-                git branch: 'main', url: 'https://github.com/sahil303/jenkins-devops-demo.git'
-            }
-        }
-
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                bat 'echo "Simulating build..."'
-                // sh 'dotnet build' or 'npm install' if your app uses those
+                script {
+                    try {
+                        bat 'dotnet build'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
             }
         }
-
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                bat 'echo "Simulating tests..."'
-                // Replace with: sh 'dotnet test' or 'npm test' when needed
+                script {
+                    try {
+                        bat 'dotnet test'  
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
             }
         }
-
         stage('Deploy to Staging') {
             steps {
-                echo "Simulating deployment to STAGING at ${env.STAGING_URL}"
-                bat 'echo "Deploying build to staging server..."'
+                echo 'Deploying to Staging environment...'
+                script {
+                    try {
+                        bat 'dotnet publish --configuration Release --output ./staging'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
             }
         }
-
-        stage('Approval') {
-            steps {
-                input message: 'Proceed to production deployment?', ok: 'Deploy'
-            }
-        }
-
         stage('Deploy to Production') {
             steps {
-                echo "Simulating deployment to PRODUCTION at ${env.PRODUCTION_URL}"
-                bat 'echo "Deploying build to production server..."'
+                echo 'Deploying to Production environment...'
+                script {
+                    try {
+                        bat 'dotnet publish --configuration Release --output ./production'
+                    } catch (Exception e) {
+                        currentBuild.result = 'FAILURE'
+                        throw e
+                    }
+                }
             }
         }
     }
-
     post {
         success {
-            echo 'Pipeline completed successfully.'
+            echo 'Pipeline succeeded!'
+            // You can add any additional actions here for successful execution
         }
         failure {
-            echo 'Pipeline failed.'
+            echo 'Pipeline failed! Notifying team...'
+            // Example: Send email or Slack notification
+            // emailext to: 'team@example.com', subject: 'Build Failed', body: 'The Jenkins pipeline failed.'
+        }
+        unstable {
+            echo 'Pipeline is unstable! Investigate the issues.'
+            // Add actions for unstable builds (e.g., partial test failures)
+        }
+        always {
+            echo 'Pipeline execution completed.'
+            // Actions that should run regardless of the pipeline outcome, such as cleanup
         }
     }
 }
