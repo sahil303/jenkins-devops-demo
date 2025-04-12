@@ -7,12 +7,14 @@ pipeline {
 
     stages {
         stage('Checkout') {
+        agent { label 'build-node' }
             steps {
                 git url: 'https://github.com/sahil303/jenkins-devops-demo.git', branch: 'main'
             }
         }
 
         stage('Restore') {
+        agent { label 'build-node' }
             steps {
                 echo 'Restoring .NET dependencies...'
                 bat 'dotnet restore'
@@ -20,16 +22,16 @@ pipeline {
         }
 
         stage('Build') {
+            agent { label 'build-node' }
             steps {
-                echo 'Building the application...'
-                bat 'dotnet build --configuration Release'
+                bat 'dotnet build'
             }
         }
 
         stage('Test') {
+            agent { label 'test-node' }
             steps {
-                echo 'Running unit tests...'
-                bat 'dotnet test --no-build --verbosity normal'
+                bat 'dotnet test'
             }
         }
 
@@ -38,20 +40,6 @@ pipeline {
                 echo "Deploying to staging environment: ${env.STAGING_SERVER}"
                 // Simulate deployment or run a custom script
                 bat 'echo Simulating Staging Deployment'
-            }
-        }
-
-        stage('Manual Approval') {
-            steps {
-                input message: 'Approve Deployment to Production?'
-            }
-        }
-
-        stage('Deploy to Production') {
-            steps {
-                echo "Deploying to production environment: ${env.PRODUCTION_SERVER}"
-                // Simulate production deployment
-                bat 'echo Simulating Production Deployment'
             }
         }
     }
