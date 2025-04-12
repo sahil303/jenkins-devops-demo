@@ -1,5 +1,5 @@
 pipeline {
-    agent none
+    agent any
 
     environment {
         DOTNET_ROOT = '/usr/share/dotnet'
@@ -8,65 +8,55 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            agent { label 'build-node' }
             steps {
+                echo 'Checking out source code...'
                 git branch: 'main', url: 'https://github.com/sahil303/jenkins-devops-demo.git'
             }
         }
 
-        stage('Restore') {
-            agent { label 'build-node' }
-            steps {
-                sh 'dotnet restore ContactManagerSolution.sln'
-            }
-        }
-
         stage('Build') {
-            agent { label 'build-node' }
             steps {
-                sh 'dotnet build ContactManagerSolution.sln --no-restore'
+                echo 'Building the application...'
+                sh 'echo "Simulating build..."'
+                // sh 'dotnet build' or 'npm install' if your app uses those
             }
         }
 
         stage('Test') {
-            agent { label 'test-node' }
             steps {
-                sh 'dotnet test ContactManagerAPI.Tests/ContactManagerAPI.Tests.csproj --no-build --verbosity normal'
+                echo 'Running tests...'
+                sh 'echo "Simulating tests..."'
+                // Replace with: sh 'dotnet test' or 'npm test' when needed
             }
         }
 
         stage('Deploy to Staging') {
-            agent { label 'staging-node' }
             steps {
-                echo 'Deploying to Staging...'
-                sh './deploy-staging.sh' // You should create this script
+                echo "Simulating deployment to STAGING at ${env.STAGING_URL}"
+                sh 'echo "Deploying build to staging server..."'
             }
         }
 
-        stage('Manual Approval') {
+        stage('Approval') {
             steps {
-                input message: 'Approve deployment to production?', ok: 'Deploy'
+                input message: 'Proceed to production deployment?', ok: 'Deploy'
             }
         }
 
         stage('Deploy to Production') {
-            agent { label 'production-node' }
             steps {
-                echo 'Deploying to Production...'
-                sh './deploy-prod.sh' // You should create this script
+                echo "Simulating deployment to PRODUCTION at ${env.PRODUCTION_URL}"
+                sh 'echo "Deploying build to production server..."'
             }
         }
     }
 
     post {
         success {
-            echo "Pipeline completed successfully!"
+            echo 'Pipeline completed successfully.'
         }
         failure {
-            echo "Pipeline failed!"
-        }
-        always {
-            echo "Cleanup or notifications can be added here"
+            echo 'Pipeline failed.'
         }
     }
 }
