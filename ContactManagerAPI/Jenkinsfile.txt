@@ -17,7 +17,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the application...'
-                sh 'echo "Simulating build..."'
+                bat 'echo "Simulating build..."'
                 // sh 'dotnet build' or 'npm install' if your app uses those
             }
         }
@@ -25,7 +25,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'echo "Simulating tests..."'
+                bat 'echo "Simulating tests..."'
                 // Replace with: sh 'dotnet test' or 'npm test' when needed
             }
         }
@@ -33,7 +33,7 @@ pipeline {
         stage('Deploy to Staging') {
             steps {
                 echo "Simulating deployment to STAGING at ${env.STAGING_URL}"
-                sh 'echo "Deploying build to staging server..."'
+                bat 'echo "Deploying build to staging server..."'
             }
         }
 
@@ -46,7 +46,7 @@ pipeline {
         stage('Deploy to Production') {
             steps {
                 echo "Simulating deployment to PRODUCTION at ${env.PRODUCTION_URL}"
-                sh 'echo "Deploying build to production server..."'
+                bat 'echo "Deploying build to production server..."'
             }
         }
     }
