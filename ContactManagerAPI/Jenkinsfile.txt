@@ -24,7 +24,8 @@ pipeline {
         stage('Build') {
             agent { label 'build-node' }
             steps {
-                bat 'dotnet build --configuration Release ContactManagerAPI\\ContactManagerAPI.sln'
+                bat 'dotnet clean ContactManagerAPI\\ContactManagerAPI.sln'
+                bat 'dotnet build --configuration Release ContactManagerAPI\\ContactManagerAPI.sln -maxcpucount:1'
             }
         }
 
