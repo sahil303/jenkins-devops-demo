@@ -5,6 +5,7 @@ using ContactManagerAPI.Data;
 using ContactManagerAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace ContactManagerAPI.Tests
 {
@@ -49,6 +50,27 @@ namespace ContactManagerAPI.Tests
             // Assert
             var createdResult = Assert.IsType<CreatedAtActionResult>(result);
             Assert.Equal("Get", createdResult.ActionName);
+        }
+
+        [Fact]
+        public void Delete_RemoveContact()
+        {
+            // Arrange
+            var options = new DbContextOptionsBuilder<ContactContext>()
+                .UseInMemoryDatabase("TestDb")
+                .Options;
+
+            using var context = new ContactContext(options);
+            var controller = new ContactsController(context);
+
+            // Act
+            var contacts = controller.Get();
+            var okResult = Assert.IsType<OkObjectResult>(contacts.Result);
+            var result = controller.Delete(Assert.IsAssignableFrom<System.Collections.Generic.IEnumerable<Contact>>(okResult.Value).Single().Id);
+
+            // Assert
+            var createdResult = Assert.IsType<NoContentResult>(result);
+            Assert.True(createdResult.StatusCode == 204);
         }
     }
 }
