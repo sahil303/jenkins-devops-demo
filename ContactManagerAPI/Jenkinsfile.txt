@@ -17,21 +17,21 @@ pipeline {
         agent { label 'build-node' }
             steps {
                 echo 'Restoring .NET dependencies...'
-                bat 'dotnet restore'
+                bat 'dotnet restore ContactManagerAPI\ContactManagerAPI.sln'
             }
         }
 
         stage('Build') {
             agent { label 'build-node' }
             steps {
-                bat 'dotnet build'
+                bat 'dotnet build --configuration Release ContactManagerAPI\ContactManagerAPI.sln'
             }
         }
 
         stage('Test') {
             agent { label 'test-node' }
             steps {
-                bat 'dotnet test'
+                bat 'dotnet test --no-build ContactManagerAPI\ContactManagerAPI.sln'
             }
         }
 
