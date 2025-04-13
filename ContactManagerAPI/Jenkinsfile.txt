@@ -69,7 +69,7 @@ pipeline {
             steps {
                 input message: 'Approve deployment to Production?'
                 echo 'Deploying to Production environment...'
-                bat 'dotnet publish --configuration Release --output C:\Deployments\ProductionEnv\ContactManagerAPI'
+                bat 'dotnet publish --configuration Release --output C:\\Deployments\\ProductionEnv\\ContactManagerAPI'
             }
         }
     }
