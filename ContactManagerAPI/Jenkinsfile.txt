@@ -36,18 +36,36 @@ pipeline {
             }
         }
 
+        stage('Prepare Environments') {
+            steps {
+
+                echo 'Creating Staging and Production directories if not exist...'
+
+                bat '''
+                if not exist C:\\Deployments\\StagingEnv\\ContactManagerAPI (
+                    mkdir C:\\Deployments\\StagingEnv\\ContactManagerAPI
+                )
+                if not exist C:\\Deployments\\ProductionEnv\\ContactManagerAPI (
+                    mkdir C:\\Deployments\\ProductionEnv\\ContactManagerAPI
+                )
+                '''
+            }
+        }
+
         stage('Deploy to Staging') {
             steps {
-                echo "Deploying to staging environment: ${env.STAGING_SERVER}"
-                // Simulate deployment or run a custom script
-                bat 'echo Simulating Staging Deployment'
+                echo 'Deploying to Staging environment...'
+                bat 'xcopy /E /I /Y ContactManagerAPI\\bin\\Release\\net8.0 C:\\Deployments\\StagingEnv\\ContactManagerAPI'
             }
         }
     }
 
     post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
         failure {
-            echo 'Pipeline failed. Triggering notification/rollback if configured.'
+            echo 'Pipeline failed. Please check the logs.'
         }
     }
 }
