@@ -59,6 +59,19 @@ pipeline {
                 bat 'xcopy /E /I /Y ContactManagerAPI\\bin\\Release\\net8.0 C:\\Deployments\\StagingEnv\\ContactManagerAPI'
             }
         }
+
+                 
+        stage('Deploy to Production') {
+        agent { label 'production-node' }
+            when {
+                branch 'main'
+            }
+            steps {
+                input message: 'Approve deployment to Production?'
+                echo 'Deploying to Production environment...'
+                bat 'dotnet publish --configuration Release --output C:\Deployments\ProductionEnv\ContactManagerAPI'
+            }
+        }
     }
 
     post {
