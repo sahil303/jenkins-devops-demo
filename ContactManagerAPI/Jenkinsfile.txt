@@ -67,7 +67,7 @@ pipeline {
                 input message: 'Approve deployment to Production?'
                 echo 'Deploying to Production environment...'
                 bat 'xcopy /E /I /Y ContactManagerAPI\\bin\\Release\\net8.0 C:\\Deployments\\ProductionEnv\\ContactManagerAPI'
-                start "" "C:\Deployments\ProductionEnv\ContactManagerAPI\ContactManagerAPI.exe"
+                start "" "C:\\Deployments\\ProductionEnv\\ContactManagerAPI\\ContactManagerAPI.exe"
             }
         }
     }
